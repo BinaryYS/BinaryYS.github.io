@@ -93,10 +93,12 @@
 <meta property="og:url" content="http://BinaryYS.github.io/2017/02/14/笔记/SQL/清库存储过程/index.html">
 <meta property="og:site_name" content="点滴">
 <meta property="og:description" content="MyBatis调用存储过程清库">
-<meta property="og:updated_time" content="2017-06-16T08:30:40.811Z">
+<meta property="og:image" content="http://binaryys.github.io/img/SQL/mapper.jpg">
+<meta property="og:updated_time" content="2017-06-16T09:20:24.857Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="存储过程清库">
 <meta name="twitter:description" content="MyBatis调用存储过程清库">
+<meta name="twitter:image" content="http://binaryys.github.io/img/SQL/mapper.jpg">
 
 
 
@@ -387,7 +389,25 @@
         <p>MyBatis调用存储过程清库<a id="more"></a> </p>
 <h3 id="清库存储过程（清库注意使用EXISTS）"><a href="#清库存储过程（清库注意使用EXISTS）" class="headerlink" title="清库存储过程（清库注意使用EXISTS）"></a>清库存储过程（清库注意使用EXISTS）</h3><p>1.接收入参的存储过程（一）<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">OR</span> <span class="keyword">REPLACE</span> </div><div class="line"><span class="keyword">PROCEDURE</span> CLEAR_PLATFORM_DATA(P_platformId <span class="keyword">IN</span> <span class="built_in">NUMBER</span>)</div><div class="line">  <span class="keyword">IS</span></div><div class="line">  v_platformStatus VARCHAR2(<span class="number">100</span>);</div><div class="line">  <span class="keyword">BEGIN</span></div><div class="line">    <span class="keyword">SELECT</span> ONLINE_STATUS <span class="keyword">INTO</span> v_platformStatus <span class="keyword">FROM</span> T_PLATFORM_BUSI <span class="keyword">WHERE</span> PLATFORM_ID = P_platformId;</div><div class="line">    IF v_platformStatus='ONLINE' THEN</div><div class="line">      RETURN;</div><div class="line">        ELSIF v_platformStatus='OUTLINE' THEN</div><div class="line"></div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_USER_PERSONAL t <span class="keyword">WHERE</span> <span class="keyword">EXISTS</span> (<span class="keyword">SELECT</span> <span class="number">1</span> <span class="keyword">FROM</span> T_USER <span class="keyword">WHERE</span> T_USER.ID = t.ID <span class="keyword">AND</span> T_USER.PLATFORM_ID = P_platformId);</div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_USER_ORGANIZATION t <span class="keyword">WHERE</span> <span class="keyword">EXISTS</span> (<span class="keyword">SELECT</span> <span class="number">1</span> <span class="keyword">FROM</span> T_USER <span class="keyword">WHERE</span> T_USER.ID = t.ID <span class="keyword">AND</span> T_USER.PLATFORM_ID = P_platformId);</div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_USER <span class="keyword">WHERE</span> PLATFORM_ID = P_platformId;</div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_REGISTER_ORDER <span class="keyword">WHERE</span> PLATFORM_ID = P_platformId;</div><div class="line"></div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_TRANSACTION_RECORD <span class="keyword">WHERE</span> SOURCE_PLATFORM_ID = P_platformId;</div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_TRANSACTION_ORDER <span class="keyword">WHERE</span> PLATFORM_ID = P_platformId;</div><div class="line"></div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_PROJECT_DEBENTURE_REC <span class="keyword">WHERE</span> PLATFORM_ID = P_platformId;</div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_PROJECT_DAILY_REPORT <span class="keyword">WHERE</span> PLATFORM_ID = P_platformId;</div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_PROJECT_EXTEND t <span class="keyword">WHERE</span> <span class="keyword">EXISTS</span> (<span class="keyword">SELECT</span> <span class="number">1</span> <span class="keyword">FROM</span> T_PROJECT <span class="keyword">WHERE</span> T_PROJECT.ID = t.ID <span class="keyword">AND</span> T_PROJECT.BORROWER_PLATFORM_ID = P_platformId);</div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_PROJECT <span class="keyword">WHERE</span> BORROWER_PLATFORM_ID = P_platformId;</div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_FREEZE_ORDER <span class="keyword">WHERE</span> PLATFORM_ID = P_platformId;</div><div class="line">      <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_USER_AUTHORIZATION <span class="keyword">WHERE</span> PLATFORM_ID = P_platformId;</div><div class="line"></div><div class="line">      <span class="keyword">COMMIT</span>;</div><div class="line">        ELSE</div><div class="line">            NULL;</div><div class="line">        <span class="keyword">END</span> <span class="keyword">IF</span>;</div><div class="line">  <span class="keyword">END</span>;</div></pre></td></tr></table></figure></p>
 <p>2.接收入参的存储过程（二）</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">CREATE OR REPLACE </div><div class="line">PROCEDURE CLEAR_ACCOUNT_PLATFORM_DATA(P_platformId IN VARCHAR) AS</div><div class="line">BEGIN</div><div class="line">    DELETE FROM T_ACCOUNT_FREEZE t WHERE EXISTS </div><div class="line">     (SELECT 1 FROM T_ACCOUNT t1 WHERE t1.ID = t.ACCOUNT_ID  AND t1.MERCHANT_NO = P_platformId);</div><div class="line"></div><div class="line">    DELETE FROM T_ACCOUNT_HISTORY t WHERE EXISTS </div><div class="line">      (SELECT 1 FROM T_ACCOUNT t1 WHERE t1.ID = t.ACCOUNT_ID  AND t1.MERCHANT_NO = P_platformId);</div><div class="line"></div><div class="line">    DELETE FROM T_ACCOUNT_SNAPSHOT t WHERE EXISTS </div><div class="line">      (SELECT 1 FROM T_ACCOUNT t1 WHERE t1.ID = t.ACCOUNT_ID  AND t1.MERCHANT_NO = P_platformId);</div><div class="line"></div><div class="line">  DELETE FROM T_ACCOUNT WHERE MERCHANT_NO = P_platformId;</div><div class="line">COMMIT;</div><div class="line">END;</div><div class="line">``` </div><div class="line"></div><div class="line">### MyBatis调用存储过程</div><div class="line">1.mapper.xml</div><div class="line">```bash</div><div class="line">&lt;select id="callClearPlatformData"&gt;</div><div class="line">    &lt;![CDATA[</div><div class="line">      call CLEAR_PLATFORM_DATA(#&#123;platformId,jdbcType=NUMERIC&#125;)</div><div class="line">    ]]&gt;</div><div class="line">  &lt;/select&gt;</div><div class="line">``` </div><div class="line">2.mapper</div><div class="line">```bash</div><div class="line">void callClearPlatformData(@Param("platformId") long platformId);</div></pre></td></tr></table></figure>
+<pre><code class="sql"><span class="keyword">CREATE</span> <span class="keyword">OR</span> <span class="keyword">REPLACE</span> 
+<span class="keyword">PROCEDURE</span> CLEAR_ACCOUNT_PLATFORM_DATA(P_platformId <span class="keyword">IN</span> <span class="built_in">VARCHAR</span>) <span class="keyword">AS</span>
+<span class="keyword">BEGIN</span>
+    <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_ACCOUNT_FREEZE t <span class="keyword">WHERE</span> <span class="keyword">EXISTS</span> 
+     (<span class="keyword">SELECT</span> <span class="number">1</span> <span class="keyword">FROM</span> T_ACCOUNT t1 <span class="keyword">WHERE</span> t1.ID = t.ACCOUNT_ID  <span class="keyword">AND</span> t1.MERCHANT_NO = P_platformId);
+
+    <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_ACCOUNT_HISTORY t <span class="keyword">WHERE</span> <span class="keyword">EXISTS</span> 
+      (<span class="keyword">SELECT</span> <span class="number">1</span> <span class="keyword">FROM</span> T_ACCOUNT t1 <span class="keyword">WHERE</span> t1.ID = t.ACCOUNT_ID  <span class="keyword">AND</span> t1.MERCHANT_NO = P_platformId);
+
+    <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_ACCOUNT_SNAPSHOT t <span class="keyword">WHERE</span> <span class="keyword">EXISTS</span> 
+      (<span class="keyword">SELECT</span> <span class="number">1</span> <span class="keyword">FROM</span> T_ACCOUNT t1 <span class="keyword">WHERE</span> t1.ID = t.ACCOUNT_ID  <span class="keyword">AND</span> t1.MERCHANT_NO = P_platformId);
+
+  <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_ACCOUNT <span class="keyword">WHERE</span> MERCHANT_NO = P_platformId;
+<span class="keyword">COMMIT</span>;
+<span class="keyword">END</span>;
+</code></pre>
+<p>####　1.mapperxml文件</p>
+<p><img src="/img/SQL/mapper.jpg" width="600" height="300"></p>
+<h4 id="2-mapper"><a href="#2-mapper" class="headerlink" title="2.mapper"></a>2.mapper</h4><p>void callClearPlatformData(@Param(“platformId”) long platformId);</p>
 <p>这样就可以直接使用了！！！</p>
 
       
@@ -444,8 +464,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/02/13/笔记/redis实战/redis实战/" rel="next" title="redis实战">
-                <i class="fa fa-chevron-left"></i> redis实战
+              <a href="/2017/02/14/笔记/MySQL/MySQL分片扩展/" rel="next" title="MySQL分片">
+                <i class="fa fa-chevron-left"></i> MySQL分片
               </a>
             
           </div>
@@ -454,8 +474,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/02/14/笔记/MySQL/MySQL分片扩展/" rel="prev" title="MySQL分片">
-                MySQL分片 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/02/23/笔记/数据库/数据库查询/" rel="prev" title="数据库查询优化">
+                数据库查询优化 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -662,7 +682,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#清库存储过程（清库注意使用EXISTS）"><span class="nav-number">1.</span> <span class="nav-text">清库存储过程（清库注意使用EXISTS）</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#清库存储过程（清库注意使用EXISTS）"><span class="nav-number">1.</span> <span class="nav-text">清库存储过程（清库注意使用EXISTS）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-mapper"><span class="nav-number">1.1.</span> <span class="nav-text">2.mapper</span></a></li></ol></li></ol></div>
             
 
           </div>

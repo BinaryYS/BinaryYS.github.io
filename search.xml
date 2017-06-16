@@ -37,6 +37,18 @@
       </tags>
   </entry>
   <entry>
+    <title><![CDATA[存储过程清库]]></title>
+    <url>%2F2017%2F02%2F14%2F%E7%AC%94%E8%AE%B0%2FSQL%2F%E6%B8%85%E5%BA%93%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B%2F</url>
+    <content type="text"><![CDATA[MyBatis调用存储过程清库 清库存储过程（清库注意使用EXISTS）1.接收入参的存储过程（一）123456789101112131415161718192021222324252627282930CREATE OR REPLACE PROCEDURE CLEAR_PLATFORM_DATA(P_platformId IN NUMBER) IS v_platformStatus VARCHAR2(100); BEGIN SELECT ONLINE_STATUS INTO v_platformStatus FROM T_PLATFORM_BUSI WHERE PLATFORM_ID = P_platformId; IF v_platformStatus='ONLINE' THEN RETURN; ELSIF v_platformStatus='OUTLINE' THEN DELETE FROM T_USER_PERSONAL t WHERE EXISTS (SELECT 1 FROM T_USER WHERE T_USER.ID = t.ID AND T_USER.PLATFORM_ID = P_platformId); DELETE FROM T_USER_ORGANIZATION t WHERE EXISTS (SELECT 1 FROM T_USER WHERE T_USER.ID = t.ID AND T_USER.PLATFORM_ID = P_platformId); DELETE FROM T_USER WHERE PLATFORM_ID = P_platformId; DELETE FROM T_REGISTER_ORDER WHERE PLATFORM_ID = P_platformId; DELETE FROM T_TRANSACTION_RECORD WHERE SOURCE_PLATFORM_ID = P_platformId; DELETE FROM T_TRANSACTION_ORDER WHERE PLATFORM_ID = P_platformId; DELETE FROM T_PROJECT_DEBENTURE_REC WHERE PLATFORM_ID = P_platformId; DELETE FROM T_PROJECT_DAILY_REPORT WHERE PLATFORM_ID = P_platformId; DELETE FROM T_PROJECT_EXTEND t WHERE EXISTS (SELECT 1 FROM T_PROJECT WHERE T_PROJECT.ID = t.ID AND T_PROJECT.BORROWER_PLATFORM_ID = P_platformId); DELETE FROM T_PROJECT WHERE BORROWER_PLATFORM_ID = P_platformId; DELETE FROM T_FREEZE_ORDER WHERE PLATFORM_ID = P_platformId; DELETE FROM T_USER_AUTHORIZATION WHERE PLATFORM_ID = P_platformId; COMMIT; ELSE NULL; END IF; END; 2.接收入参的存储过程（二） CREATE OR REPLACE PROCEDURE CLEAR_ACCOUNT_PLATFORM_DATA(P_platformId IN VARCHAR) AS BEGIN DELETE FROM T_ACCOUNT_FREEZE t WHERE EXISTS (SELECT 1 FROM T_ACCOUNT t1 WHERE t1.ID = t.ACCOUNT_ID AND t1.MERCHANT_NO = P_platformId); DELETE FROM T_ACCOUNT_HISTORY t WHERE EXISTS (SELECT 1 FROM T_ACCOUNT t1 WHERE t1.ID = t.ACCOUNT_ID AND t1.MERCHANT_NO = P_platformId); DELETE FROM T_ACCOUNT_SNAPSHOT t WHERE EXISTS (SELECT 1 FROM T_ACCOUNT t1 WHERE t1.ID = t.ACCOUNT_ID AND t1.MERCHANT_NO = P_platformId); DELETE FROM T_ACCOUNT WHERE MERCHANT_NO = P_platformId; COMMIT; END; #### 1.mapperxml文件 2.mappervoid callClearPlatformData(@Param(“platformId”) long platformId); 这样就可以直接使用了！！！]]></content>
+      <categories>
+        <category>笔记</category>
+      </categories>
+      <tags>
+        <tag>SQL</tag>
+        <tag>存储过程，MyBatis</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[MySQL分片]]></title>
     <url>%2F2017%2F02%2F14%2F%E7%AC%94%E8%AE%B0%2FMySQL%2FMySQL%E5%88%86%E7%89%87%E6%89%A9%E5%B1%95%2F</url>
     <content type="text"><![CDATA[sharding MySQL5以后提供了Sharding的能力，其目的就是为突破单节点数据服务器I/O能力限制，解决数据库Scale Out水平扩展的问题。通过Sharding可以将数据按照物理位置贴合用户分布，得到更加快速的响应；操作庞然大物总是让人头疼，Sharding将数据分块，更小的数据集操作汇总能够得到更加的体验；分片使得数据分摊在各个数据节点，对其操作实现负载均衡！ 垂直分区 以表为单位，把不同的表分散到不同的数据库或主机上。特点是规则简单，实施方便，适合业务之间耦合度低的系统。 水平分区 以行为单位，将同一个表中的数据按照某种条件拆分到不同的数据库或主机上。特点是相对复杂，适合单表巨大的系统。 静态分片模式 静态分片模式，即分区键是静态分配的，一般使用范围或哈希函数，例如深圳团队放到一个分片，北京团队放到另外一个分片；或者编号为0096开头的员工放到一个分片，而0199开头的员工放到另外一个分片。这种模式虽然实现简单，但明显的缺陷便是存在数据不均匀的情况。 动态分片模式 动态分片模式，即分区函数将从字典中查找分区键，然后定位具体哪个分片存储了数据。这种模式比静态模式更加灵活，但是需要一个集中存储来存放字典，每次查找数据都需要执行2次查询，并且集中存储本身还可能存在单点故障。]]></content>
@@ -46,18 +58,6 @@
       <tags>
         <tag>MySQL</tag>
         <tag>分片</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title><![CDATA[存储过程清库]]></title>
-    <url>%2F2017%2F02%2F14%2F%E7%AC%94%E8%AE%B0%2FSQL%2F%E6%B8%85%E5%BA%93%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B%2F</url>
-    <content type="text"><![CDATA[MyBatis调用存储过程清库 清库存储过程（清库注意使用EXISTS）1.接收入参的存储过程（一）123456789101112131415161718192021222324252627282930CREATE OR REPLACE PROCEDURE CLEAR_PLATFORM_DATA(P_platformId IN NUMBER) IS v_platformStatus VARCHAR2(100); BEGIN SELECT ONLINE_STATUS INTO v_platformStatus FROM T_PLATFORM_BUSI WHERE PLATFORM_ID = P_platformId; IF v_platformStatus='ONLINE' THEN RETURN; ELSIF v_platformStatus='OUTLINE' THEN DELETE FROM T_USER_PERSONAL t WHERE EXISTS (SELECT 1 FROM T_USER WHERE T_USER.ID = t.ID AND T_USER.PLATFORM_ID = P_platformId); DELETE FROM T_USER_ORGANIZATION t WHERE EXISTS (SELECT 1 FROM T_USER WHERE T_USER.ID = t.ID AND T_USER.PLATFORM_ID = P_platformId); DELETE FROM T_USER WHERE PLATFORM_ID = P_platformId; DELETE FROM T_REGISTER_ORDER WHERE PLATFORM_ID = P_platformId; DELETE FROM T_TRANSACTION_RECORD WHERE SOURCE_PLATFORM_ID = P_platformId; DELETE FROM T_TRANSACTION_ORDER WHERE PLATFORM_ID = P_platformId; DELETE FROM T_PROJECT_DEBENTURE_REC WHERE PLATFORM_ID = P_platformId; DELETE FROM T_PROJECT_DAILY_REPORT WHERE PLATFORM_ID = P_platformId; DELETE FROM T_PROJECT_EXTEND t WHERE EXISTS (SELECT 1 FROM T_PROJECT WHERE T_PROJECT.ID = t.ID AND T_PROJECT.BORROWER_PLATFORM_ID = P_platformId); DELETE FROM T_PROJECT WHERE BORROWER_PLATFORM_ID = P_platformId; DELETE FROM T_FREEZE_ORDER WHERE PLATFORM_ID = P_platformId; DELETE FROM T_USER_AUTHORIZATION WHERE PLATFORM_ID = P_platformId; COMMIT; ELSE NULL; END IF; END; 2.接收入参的存储过程（二） 1234567891011121314151617181920212223242526272829CREATE OR REPLACE PROCEDURE CLEAR_ACCOUNT_PLATFORM_DATA(P_platformId IN VARCHAR) ASBEGIN DELETE FROM T_ACCOUNT_FREEZE t WHERE EXISTS (SELECT 1 FROM T_ACCOUNT t1 WHERE t1.ID = t.ACCOUNT_ID AND t1.MERCHANT_NO = P_platformId); DELETE FROM T_ACCOUNT_HISTORY t WHERE EXISTS (SELECT 1 FROM T_ACCOUNT t1 WHERE t1.ID = t.ACCOUNT_ID AND t1.MERCHANT_NO = P_platformId); DELETE FROM T_ACCOUNT_SNAPSHOT t WHERE EXISTS (SELECT 1 FROM T_ACCOUNT t1 WHERE t1.ID = t.ACCOUNT_ID AND t1.MERCHANT_NO = P_platformId); DELETE FROM T_ACCOUNT WHERE MERCHANT_NO = P_platformId;COMMIT;END;``` ### MyBatis调用存储过程1.mapper.xml```bash&lt;select id="callClearPlatformData"&gt; &lt;![CDATA[ call CLEAR_PLATFORM_DATA(#&#123;platformId,jdbcType=NUMERIC&#125;) ]]&gt; &lt;/select&gt;``` 2.mapper```bashvoid callClearPlatformData(@Param("platformId") long platformId); 这样就可以直接使用了！！！]]></content>
-      <categories>
-        <category>笔记</category>
-      </categories>
-      <tags>
-        <tag>SQL</tag>
-        <tag>存储过程，MyBatis</tag>
       </tags>
   </entry>
   <entry>
