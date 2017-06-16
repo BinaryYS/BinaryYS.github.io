@@ -1,0 +1,984 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="java,thread," />
+
+
+
+
+
+  <link rel="alternate" href="/" title="点滴" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Java多线程技能停止线程虽然interrupt有停止、中止的意思，但是不能直接停止当前运行的线程，">
+<meta name="keywords" content="java,thread">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java多线程核心技术">
+<meta property="og:url" content="http://BinaryYS.github.io/2017/02/06/笔记/java多线程/java多线程/index.html">
+<meta property="og:site_name" content="点滴">
+<meta property="og:description" content="Java多线程技能停止线程虽然interrupt有停止、中止的意思，但是不能直接停止当前运行的线程，">
+<meta property="og:updated_time" content="2017-06-16T07:27:29.043Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java多线程核心技术">
+<meta name="twitter:description" content="Java多线程技能停止线程虽然interrupt有停止、中止的意思，但是不能直接停止当前运行的线程，">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://BinaryYS.github.io/2017/02/06/笔记/java多线程/java多线程/"/>
+
+
+
+
+
+  <title> java多线程核心技术 | 点滴 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">点滴</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle"></p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://BinaryYS.github.io/2017/02/06/笔记/java多线程/java多线程/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="YangSong">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/img/avatar.gif">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="点滴">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="点滴" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                java多线程核心技术
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-02-06T16:10:05+08:00">
+                2017-02-06 16:10:05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/笔记/" itemprop="url" rel="index">
+                    <span itemprop="name">笔记</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/02/06/笔记/java多线程/java多线程/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/06/笔记/java多线程/java多线程/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Java多线程技能"><a href="#Java多线程技能" class="headerlink" title="Java多线程技能"></a>Java多线程技能</h2><h3 id="停止线程"><a href="#停止线程" class="headerlink" title="停止线程"></a>停止线程</h3><p>虽然interrupt有停止、中止的意思，但是不能直接停止当前运行的线程，<a id="more"></a>需要通过调用interrupted或者isInterrupted的状态来判断<br><em>interrupted</em>:测试当前线程是否处于中断状态，具有清除状态标识将其置为false的功能<br><em>isInterrupted</em>:测试当前线程是否处于中断状态，不改变状态值<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">public class Interrupt extends Thread&#123;</div><div class="line">    public void run()&#123;</div><div class="line">        for (int i=0; i&lt;500000; i++)&#123;</div><div class="line">            super.run();</div><div class="line">            if (this.isInterrupted())&#123;</div><div class="line">                System.out.println("线程已经停止！退出");</div><div class="line">                break;</div><div class="line">            &#125;</div><div class="line">            System.out.println("i=:" + (i+1));</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">--测试</div><div class="line">public class Interrupted_test &#123;</div><div class="line"></div><div class="line">    public static void main(String[] args) &#123;</div><div class="line"></div><div class="line">        try &#123;</div><div class="line">            Interrupt interrupt = new Interrupt();</div><div class="line">            interrupt.setName("A");</div><div class="line">            interrupt.start();</div><div class="line">            Thread.sleep(2000);</div><div class="line">            interrupt.interrupt();</div><div class="line">        &#125; catch (InterruptedException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h4 id="异常法"><a href="#异常法" class="headerlink" title="异常法"></a>异常法</h4><p> 通过捕获异常interruptedException，停止线程<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">public class Interrupt extends Thread&#123;</div><div class="line">    public void run()&#123;</div><div class="line">        try &#123;</div><div class="line">            for (int i=0; i&lt;500000; i++)&#123;</div><div class="line">                super.run();</div><div class="line">                if (this.isInterrupted())&#123;</div><div class="line">                    System.out.println("线程已经停止！退出");</div><div class="line">                    throw new InterruptedException();</div><div class="line">                &#125;</div><div class="line">                System.out.println("i=:" + (i+1));</div><div class="line">            &#125;</div><div class="line">        System.out.println("我还要继续执行呢，狠狠！");</div><div class="line">        &#125;catch (InterruptedException e) &#123;</div><div class="line">            System.out.println("I am interruptedException , i am catched by run! wu wu ....");</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h4 id="在线程沉睡中停止"><a href="#在线程沉睡中停止" class="headerlink" title="在线程沉睡中停止"></a>在线程沉睡中停止</h4><p>在线程sleep时调用interrupted<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">public class SleepInterrupt extends Thread&#123;</div><div class="line"></div><div class="line">    public void run() &#123;</div><div class="line">    try&#123;</div><div class="line">        System.out.println("run begin--&gt; oo oo");</div><div class="line">        Thread.sleep(2000);</div><div class="line">        System.out.println("run end--&gt; ......");</div><div class="line">    &#125; catch(InterruptedException e) &#123;</div><div class="line">        System.out.println("I am dead in sleeping ......");</div><div class="line">        e.printStackTrace();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h4 id="暴力停止stop"><a href="#暴力停止stop" class="headerlink" title="暴力停止stop"></a>暴力停止stop</h4><p>用stop的方法停止线程的方式不推荐使用，这是一种不安全的停止方式,暴力停止可能会导致一些清理操作无法执行。</p>
+<h4 id="return停止"><a href="#return停止" class="headerlink" title="return停止"></a>return停止</h4><p>线程run()方法中直接return便退出线程。</p>
+<h3 id="暂停、恢复线程"><a href="#暂停、恢复线程" class="headerlink" title="暂停、恢复线程"></a>暂停、恢复线程</h3><p><em>suspend()</em>: 暂停线程<br><em>resume()</em>: 复线程<br>这种方法极易造成公共同步对象的独占，阻止其他线程访问公共同步方法;同时该方法也容易造成数据不同步的问题。<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">public class PrintLock extends Thread &#123;</div><div class="line">    private long i = 0;</div><div class="line">    public void run()&#123;</div><div class="line">        while (true) &#123;</div><div class="line">           // if (this.isInterrupted()) return;</div><div class="line">            i++;</div><div class="line">           //System.out.println("i=:"+i);&lt;!--试试--&gt;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">--测试</div><div class="line">public class PrintLock_test &#123;</div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        try &#123;</div><div class="line">            PrintLock printLock = new PrintLock();</div><div class="line">            printLock.setName("binary");</div><div class="line">            printLock.start();</div><div class="line">            Thread.sleep(1000);</div><div class="line">            printLock.suspend();</div><div class="line">            System.out.println("main end!");</div><div class="line"></div><div class="line">        &#125; catch (InterruptedException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>当线程获取print()的同步锁未释放时，主线程无法使用println(), println()源码如下：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">public void println(String x) &#123;</div><div class="line">       synchronized (this) &#123;</div><div class="line">           print(x);</div><div class="line">           newLine();</div><div class="line">       &#125;</div><div class="line">   &#125;</div></pre></td></tr></table></figure></p>
+<h3 id="yield"><a href="#yield" class="headerlink" title="yield"></a>yield</h3><p> 线程调用yield()让出cpu，之后再获取cpu继续执行，期间间隔的时间不确定。</p>
+<h3 id="线程的优先级"><a href="#线程的优先级" class="headerlink" title="线程的优先级"></a>线程的优先级</h3><p>线程优先级有10个等级，1-10，设置优先级setPriority()。优先级较高的线程得到的cpu资源较多，也就是说cpu优先执行优先级较高的线程中对象中的任务。</p>
+<h4 id="优先级的继承性"><a href="#优先级的继承性" class="headerlink" title="优先级的继承性"></a>优先级的继承性</h4><p>线程的优先级与启动的线程的优先级一样。</p>
+<h4 id="优先级具有规则性"><a href="#优先级具有规则性" class="headerlink" title="优先级具有规则性"></a>优先级具有规则性</h4><h4 id="优先级具有随机性"><a href="#优先级具有随机性" class="headerlink" title="优先级具有随机性"></a>优先级具有随机性</h4><h3 id="守护线程"><a href="#守护线程" class="headerlink" title="守护线程"></a>守护线程</h3><p>Java线程中有两种线程，一种用户线程，另一种为守护线程。守护线程为非守护线程服务，当进程中没有非守护线程的时候，守护线程就会自动销毁，典型的如垃圾回收线程GC。只要当前的JVM虚拟机中存在任何一个非守护线程实例，守护线程就会一直工作。setDaemon()将线程设置为守护线程。</p>
+<h2 id="对象及变量的并发访问"><a href="#对象及变量的并发访问" class="headerlink" title="对象及变量的并发访问"></a>对象及变量的并发访问</h2><h3 id="synchronized-方法"><a href="#synchronized-方法" class="headerlink" title="synchronized 方法"></a>synchronized 方法</h3><p>非线程安全就是在多个线程对同一个对象的一个实例变量进行并发访问时出现“脏读”的现象，读到的数据是被修改过的，线程安全就是获取的实例变量的值是同步处理的，避免脏读现象。</p>
+<h4 id="实例变量的线程安全"><a href="#实例变量的线程安全" class="headerlink" title="实例变量的线程安全"></a>实例变量的线程安全</h4><p>方法内的变量是线程安全的，然而多个线程并发访问同一个对象的实例变量就是非线程安全的，此时会出现脏读。<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">public class synch &#123;</div><div class="line">    //private int num = 0;  非线程安全</div><div class="line">     public void addI(String name) &#123;</div><div class="line">      int num = 0;</div><div class="line">        if(name.eq("a"))&#123;</div><div class="line">             num = 100;</div><div class="line">             try</div><div class="line">            &#123; Thread.sleep(1000);&#125;</div><div class="line">            catch(InterruptedException e)&#123;</div><div class="line">                    e.printStackTrace();</div><div class="line">            &#125;</div><div class="line">        else&#123;</div><div class="line">            num = 200;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">     &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这种情况就是在addI()方法加上synchronized锁。</p>
+<h4 id="多个对象多个锁"><a href="#多个对象多个锁" class="headerlink" title="多个对象多个锁"></a>多个对象多个锁</h4><p>synchronized只能锁住同一个对象实例的一个方法，同一对象的多个实例不受约束，通过synchronized锁住的方法只能顺序访问。</p>
+<h4 id="脏读"><a href="#脏读" class="headerlink" title="脏读"></a>脏读</h4><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div></pre></td><td class="code"><pre><div class="line">public class MyObject &#123;</div><div class="line"></div><div class="line">    private String name = "A";</div><div class="line">    private String pwd = "AA";</div><div class="line"></div><div class="line">    synchronized public void setValue(String _name, String _pwd)&#123;</div><div class="line">        this.name = _name;</div><div class="line">        try &#123;</div><div class="line">            Thread.sleep(5000);</div><div class="line">        &#125; catch (InterruptedException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">        this.pwd = _pwd;</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">   /*synchronized*/ public void getValue()&#123;</div><div class="line">        System.out.println(Thread.currentThread().getName()+"name:"+this.name+"&amp;"+"pwd:"+this.pwd);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">/**</div><div class="line"> * Created by song.yang on 2017/3/2：17:00.</div><div class="line"> * &lt;p&gt;</div><div class="line"> * e-mail:song.yang@msxf.com</div><div class="line"> */</div><div class="line"></div><div class="line">public class MyThread extends Thread &#123;</div><div class="line">    private MyObject mo;</div><div class="line">    public MyThread(MyObject _mo) &#123;</div><div class="line">        this.mo = _mo;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public void run()&#123;</div><div class="line">        mo.setValue("B", "BB");</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">public class MyTest &#123;</div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        MyObject mo = new MyObject();</div><div class="line">        MyThread mt = new MyThread(mo);</div><div class="line">        mt.start();</div><div class="line">        try &#123;</div><div class="line">            Thread.sleep(500);</div><div class="line">        &#125; catch (InterruptedException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">        mo.getValue();</div><div class="line">    &#125;</div><div class="line"></div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>线程调用对象的同步方法获得对象锁，其他线程不能获取对象的锁，即其他线程不能调用该对象的所有同步方法，但是其他线程可以调用该对象的非同步方法。</p>
+<h4 id="synchronized-锁重入"><a href="#synchronized-锁重入" class="headerlink" title="synchronized 锁重入"></a>synchronized 锁重入</h4><p>一个线程获取对象锁之后，是可以连续请求以连续获得该对象的锁，即在一个synchronized修饰的方法块内再次调用该对象的其他同步方法是可以的。</p>
+<h4 id="synchronized-锁释放"><a href="#synchronized-锁释放" class="headerlink" title="synchronized 锁释放"></a>synchronized 锁释放</h4><p>出现异常，直接自动释放锁</p>
+<h4 id="同步不具有继承性"><a href="#同步不具有继承性" class="headerlink" title="同步不具有继承性"></a>同步不具有继承性</h4><p>synchronized方法不能继承，在子类方法中添加synchronized修饰才能实现同步。</p>
+<h3 id="synchronized同步语句块"><a href="#synchronized同步语句块" class="headerlink" title="synchronized同步语句块"></a>synchronized同步语句块</h3><p>使用synchronized容易出现长时间等待的现象</p>
+<h4 id="锁非this对象"><a href="#锁非this对象" class="headerlink" title="锁非this对象"></a>锁非this对象</h4><p>非this锁不会与this锁争抢对象锁，这样可以大大提高执行效率，不会发生长时间等待。<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * Created by song.yang on 2017/3/7：14:02.</div><div class="line"> * &lt;p&gt;</div><div class="line"> * e-mail:song.yang@msxf.com</div><div class="line"> */</div><div class="line"></div><div class="line">public class MyService &#123;</div><div class="line">    public MyList addMyService(MyList ml,String str)&#123;</div><div class="line">        try &#123;</div><div class="line">            synchronized(ml)&#123;</div><div class="line">            if (ml.getSize()&lt;1)&#123;</div><div class="line">                Thread.sleep(2000);</div><div class="line">                ml.addList(str);</div><div class="line">            &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;catch (InterruptedException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">        return ml;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>####静态同步synchronized方法与synchronized（class）代码块<br>synchronized加到静态方法上，锁住的是class;synchronized加到非静态方法上，锁住的是对象。而锁住的是class锁可以对类的所有实例对象起作用</p>
+<h4 id="数据类型String的常量池特性"><a href="#数据类型String的常量池特性" class="headerlink" title="数据类型String的常量池特性"></a>数据类型String的常量池特性</h4><p>JVM中具有String常量池缓存的功能，对象不具有<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * Created by song.yang on 2017/3/9：13:47.</div><div class="line"> * &lt;p&gt;</div><div class="line"> * e-mail:song.yang@msxf.com</div><div class="line"> */</div><div class="line"></div><div class="line">public class Service &#123;</div><div class="line">    public  void print(String object)&#123;</div><div class="line">        synchronized(object)&#123;</div><div class="line">            while (true)&#123;</div><div class="line">                System.out.println(Thread.currentThread().getName());</div><div class="line">                try &#123;</div><div class="line">                    Thread.sleep(1000);</div><div class="line">                &#125; catch (InterruptedException e) &#123;</div><div class="line">                    e.printStackTrace();</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="Volatile"><a href="#Volatile" class="headerlink" title="Volatile"></a>Volatile</h3><p> volatile是强制从公共堆栈中获取变量值，而不是从线程私有数据栈中获取变量值</p>
+<h4 id="volatile与synchronized的比较"><a href="#volatile与synchronized的比较" class="headerlink" title="volatile与synchronized的比较"></a>volatile与synchronized的比较</h4><p>关键字volatile是线程同步的轻量级实现，性能比synchronized好，volatile只能修数变量，而synchronized可以修饰方法和代码块，随着JDK版本的提升，synchronized的性能得到提升；多线程访问volatile不会发生阻塞，而多线程访问synchronized会发生阻塞；volatile可以保证数据的可见性，但不能保证数据的原子性，synchronized可以保证数据的原子性，也可以间接保证数据的可见性，因为它将会同步私有内存数据域和公共内存数据域的变量值；volatile可以保证多个线程访问变量的可见性，synchronized保证多个线程访问资源的同步性。volatile只能保证线程从内存中加载数据时是最新的，也就是读数据的时候是最新的，多个线程访问同一个实例变量还是要加锁保证同步。</p>
+<h2 id="线程间通信"><a href="#线程间通信" class="headerlink" title="线程间通信"></a>线程间通信</h2><h3 id="共享实例变量实现通信"><a href="#共享实例变量实现通信" class="headerlink" title="共享实例变量实现通信"></a>共享实例变量实现通信</h3><h3 id="通知-等待机制"><a href="#通知-等待机制" class="headerlink" title="通知/等待机制"></a>通知/等待机制</h3><p>wait/notify通知等待机制，二者都要在同步方法中，都需要获得对象锁。<br><em>wait():</em> 使调用wait的线程释放共享资源的锁，进入等待队列，直到再次被唤醒<br><em>notify():</em> 随机唤醒等待队列中等待同一个资源的线程，被选中的线程退出等待队列，进入可执行状态<br><em>notifyall():</em> 唤醒等待队列中所有等待同一资源的线程，全部进入可运行状态，此时优先级最高的线程最先运行，也可能随机执行，具体取决于JVM的实现机制<br>wait()执行之后会自动释放锁，notify()不会自动释放锁，只有在其所在的同步块执行完之后才释放锁</p>
+<h4 id="wait-long"><a href="#wait-long" class="headerlink" title="wait(long)"></a>wait(long)</h4><p> 在等待一段时间之内没被唤醒则自动唤醒</p>
+<h3 id="join"><a href="#join" class="headerlink" title="join()"></a>join()</h3><p>join()是让所属的线程t正常执行，其他线程进入阻塞队列，在t执行完成之后，阻塞队列中的线程才能继续执行。<br><em>join(long):</em> 设置等待时间，底层实现是wait(long), 能够自动释放当前锁，之后其他线程可以获取该对象的同步方法<br><em>sleep(long):</em> 与join(long)不同的是sleep(long)不能自动释放锁</p>
+<h3 id="ThreadLocal"><a href="#ThreadLocal" class="headerlink" title="ThreadLocal"></a>ThreadLocal</h3><p>ThreadLocal为线程绑定私有变量</p>
+<h2 id="Lock的使用"><a href="#Lock的使用" class="headerlink" title="Lock的使用"></a>Lock的使用</h2><h3 id="使用ReentrantLock类"><a href="#使用ReentrantLock类" class="headerlink" title="使用ReentrantLock类"></a>使用ReentrantLock类</h3><p>ReentrantLock与synchronized作用类似，有lock()和nulock();</p>
+<h2 id="Timer"><a href="#Timer" class="headerlink" title="Timer"></a>Timer</h2><h2 id="单例模式与多线程"><a href="#单例模式与多线程" class="headerlink" title="单例模式与多线程"></a>单例模式与多线程</h2><h3 id="立即加载-饿汉模式"><a href="#立即加载-饿汉模式" class="headerlink" title="立即加载/饿汉模式"></a>立即加载/饿汉模式</h3><p>立即加载就是在使用类的时候已经创建完毕，常见的方法就是new实例化，而立即加载有着急、急迫的意思，所以称为饿汉模式</p>
+<h3 id="延迟加载-懒汉模式"><a href="#延迟加载-懒汉模式" class="headerlink" title="延迟加载/懒汉模式"></a>延迟加载/懒汉模式</h3><p>延迟加载就是调用get()方法时候才创建实例，常见的情况就是直接在get()方法中实例化，而延迟加载就是在从中文的语境的来看有缓慢和不急迫的意思，故称为懒汉模式。<br>延迟加载根本不能实现安全单例，只能在get()方法加同步synchronized锁才可以,但是该方法效率不高，也可以改成synchronized代码块的方法，但是同样效率低</p>
+<h4 id="使用DCL双检查锁机制"><a href="#使用DCL双检查锁机制" class="headerlink" title="使用DCL双检查锁机制"></a>使用DCL双检查锁机制</h4><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * Created by song.yang on 2017/3/11：14:52.</div><div class="line"> * &lt;p&gt;</div><div class="line"> * e-mail:song.yang@msxf.com</div><div class="line"> */</div><div class="line"></div><div class="line">public class MyObject &#123;</div><div class="line"></div><div class="line">    private volatile static MyObject myObject;</div><div class="line">    private MyObject()&#123;</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public static MyObject getInstance()&#123;</div><div class="line">        if (myObject != null)&#123;</div><div class="line"></div><div class="line">        &#125;else &#123;</div><div class="line">            try &#123;</div><div class="line">                Thread.sleep(1000);</div><div class="line">                synchronized (MyObject.class)&#123;</div><div class="line">                    if (myObject == null)&#123;</div><div class="line">                        myObject = new MyObject();</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125; catch (InterruptedException e) &#123;</div><div class="line">                e.printStackTrace();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        return myObject;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="使用静态内置类实现锁机制"><a href="#使用静态内置类实现锁机制" class="headerlink" title="使用静态内置类实现锁机制"></a>使用静态内置类实现锁机制</h4><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * Created by song.yang on 2017/3/11：15:17.</div><div class="line"> * &lt;p&gt;</div><div class="line"> * e-mail:song.yang@msxf.com</div><div class="line"> */</div><div class="line"></div><div class="line">public class StaticClass &#123;</div><div class="line">    private static final Logger logger = LoggerFactory.getLogger(StaticClass.class);</div><div class="line">    private static class StaticHandler&#123;</div><div class="line">        private static StaticClass staticClass = new StaticClass();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    private StaticClass()&#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public static StaticClass getInstance()&#123;</div><div class="line">        logger.info("静态内置类实现单例模式。。。。");</div><div class="line">        return  StaticHandler.staticClass;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="序列化和反序列化的单例模式实现"><a href="#序列化和反序列化的单例模式实现" class="headerlink" title="序列化和反序列化的单例模式实现"></a>序列化和反序列化的单例模式实现</h3><p>静态内置类能够达到单例模式的效果，但是在实现序列化的时候，如果按照默认的的方式则结果还是多例的<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * Created by song.yang on 2017/3/11：15:44.</div><div class="line"> * &lt;p&gt;</div><div class="line"> * e-mail:song.yang@msxf.com</div><div class="line"> */</div><div class="line"></div><div class="line">public class MyObject implements Serializable&#123;</div><div class="line">    private static final Logger logger = LoggerFactory.getLogger(MyObject.class);</div><div class="line">    private final static long serialVersionUID = -1L;</div><div class="line">    private static class ObjectClass&#123;</div><div class="line">        private static final MyObject myObject = new MyObject();</div><div class="line">    &#125;</div><div class="line">    private MyObject()&#123;</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public static MyObject getInstance()&#123;</div><div class="line">        return ObjectClass.myObject;</div><div class="line">    &#125;</div><div class="line">/**</div><div class="line"> 那么这个readResolve()方法是从哪来的，为什么加上之后就能返回同一实例了呢？</div><div class="line"> 找到ObjectInputStream类的</div><div class="line"> * Reads and returns "ordinary" (i.e., not a String, Class,</div><div class="line"> * ObjectStreamClass, array, or enum constant) object, or null if object's</div><div class="line"> * class is unresolvable (in which case a ClassNotFoundException will be</div><div class="line"> * associated with object's handle).  Sets passHandle to object's assigned</div><div class="line"> * handle.</div><div class="line"></div><div class="line">private Object readOrdinaryObject(boolean unshared)</div><div class="line">        throws IOException</div><div class="line">&#123;</div><div class="line">    if (bin.readByte() != TC_OBJECT) &#123;</div><div class="line">        throw new InternalError();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    ObjectStreamClass desc = readClassDesc(false);</div><div class="line">    desc.checkDeserialize();</div><div class="line"></div><div class="line">    Class&lt;?&gt; cl = desc.forClass();</div><div class="line">    if (cl == String.class || cl == Class.class</div><div class="line">            || cl == ObjectStreamClass.class) &#123;</div><div class="line">        throw new InvalidClassException("invalid class descriptor");</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    Object obj;</div><div class="line">    try &#123;</div><div class="line">        obj = desc.isInstantiable() ? desc.newInstance() : null;</div><div class="line">    &#125; catch (Exception ex) &#123;</div><div class="line">        throw (IOException) new InvalidClassException(</div><div class="line">                desc.forClass().getName(),</div><div class="line">                "unable to create instance").initCause(ex);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    passHandle = handles.assign(unshared ? unsharedMarker : obj);</div><div class="line">    ClassNotFoundException resolveEx = desc.getResolveException();</div><div class="line">    if (resolveEx != null) &#123;</div><div class="line">        handles.markException(passHandle, resolveEx);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    if (desc.isExternalizable()) &#123;</div><div class="line">        readExternalData((Externalizable) obj, desc);</div><div class="line">    &#125; else &#123;</div><div class="line">        readSerialData(obj, desc);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    handles.finish(passHandle);</div><div class="line"></div><div class="line">    if (obj != null &amp;&amp;</div><div class="line">            handles.lookupException(passHandle) == null &amp;&amp;</div><div class="line">            desc.hasReadResolveMethod())</div><div class="line">    &#123;</div><div class="line">        Object rep = desc.invokeReadResolve(obj);</div><div class="line">        if (unshared &amp;&amp; rep.getClass().isArray()) &#123;</div><div class="line">            rep = cloneArray(rep);</div><div class="line">        &#125;</div><div class="line">        if (rep != obj) &#123;</div><div class="line">            handles.setObject(passHandle, obj = rep);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    return obj;</div><div class="line">&#125;</div><div class="line"> */</div><div class="line">     protected Object readResolve()&#123;</div><div class="line">        System.out.println("调用了readResolve方法！");</div><div class="line">        return  ObjectClass.myObject;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="使用static代码块实现单例模式"><a href="#使用static代码块实现单例模式" class="headerlink" title="使用static代码块实现单例模式"></a>使用static代码块实现单例模式</h3><p>static代码块中的代码代码在使用类的时候已经执行了<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * Created by song.yang on 2017/3/11：16:50.</div><div class="line"> * &lt;p&gt;</div><div class="line"> * e-mail:song.yang@msxf.com</div><div class="line"> */</div><div class="line"></div><div class="line">public class StaticSingleton &#123;</div><div class="line">    private static StaticSingleton instance = null;</div><div class="line">    private StaticSingleton()&#123;</div><div class="line"></div><div class="line">    &#125;</div><div class="line">    static &#123;</div><div class="line">        instance = new StaticSingleton();</div><div class="line">    &#125;</div><div class="line">    public static StaticSingleton getInstance()&#123;</div><div class="line">        return instance;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="使用enum枚举数据类型实现单例模式"><a href="#使用enum枚举数据类型实现单例模式" class="headerlink" title="使用enum枚举数据类型实现单例模式"></a>使用enum枚举数据类型实现单例模式</h3><p>在使用枚举数据类型时，<em>构造方法</em>会被自动调用，可以根据这个特性实现单例模式</p>
+<h2 id="拾遗增补"><a href="#拾遗增补" class="headerlink" title="拾遗增补"></a>拾遗增补</h2><h3 id="线程状态"><a href="#线程状态" class="headerlink" title="线程状态"></a>线程状态</h3><p>调用线程的getState(), 线程状态new,runnable,running,terminated,timed_waiting,blocked,waiting,</p>
+<h3 id="线程组"><a href="#线程组" class="headerlink" title="线程组"></a>线程组</h3><h3 id="线程对象关联线程组：1级关联"><a href="#线程对象关联线程组：1级关联" class="headerlink" title="线程对象关联线程组：1级关联"></a>线程对象关联线程组：1级关联</h3><p>父对象与子对象</p>
+<h3 id="线程-对象关联线程组：多级关联"><a href="#线程-对象关联线程组：多级关联" class="headerlink" title="线程 对象关联线程组：多级关联"></a>线程 对象关联线程组：多级关联</h3><p>父对象与子对象以及孙子对象</p>
+<h3 id="线程具有有序性"><a href="#线程具有有序性" class="headerlink" title="线程具有有序性"></a>线程具有有序性</h3><h3 id="SimpleDateFormate非线程安全"><a href="#SimpleDateFormate非线程安全" class="headerlink" title="SimpleDateFormate非线程安全"></a>SimpleDateFormate非线程安全</h3><p>SimpleDateFormate类是非线程安全的，</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>打赏一下</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/img/wypay.jpg" alt="YangSong WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/img/alipay.jpg" alt="YangSong Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/java/" rel="tag"># java</a>
+          
+            <a href="/tags/thread/" rel="tag"># thread</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/08/笔记/MySQL/MySQL存储引擎/" rel="prev" title="MySQL存储引擎">
+                MySQL存储引擎 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2017/02/06/笔记/java多线程/java多线程/"
+     data-title="java多线程核心技术"
+     data-content=""
+     data-url="http://BinaryYS.github.io/2017/02/06/笔记/java多线程/java多线程/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  <p>热评文章</p>
+  <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/02/06/笔记/java多线程/java多线程/"
+           data-title="java多线程核心技术" data-url="http://BinaryYS.github.io/2017/02/06/笔记/java多线程/java多线程/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/img/avatar.gif"
+               alt="YangSong" />
+          <p class="site-author-name" itemprop="name">YangSong</p>
+          <p class="site-description motion-element" itemprop="description">一点一滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://HoltYin.github.io/" title="引号" target="_blank">引号</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://jadyer.github.io/" title="半步多" target="_blank">半步多</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://cmin.me/" title="追星少年" target="_blank">追星少年</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://shitianquan.github.io/" title="Terry" target="_blank">Terry</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.itmian4.com/" title="面试" target="_blank">面试</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://coolshell.cn/" title="酷壳" target="_blank">酷壳</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.shuyangyang.com.cn/" title="思考者日记" target="_blank">思考者日记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://chenpengpeng.blog.51cto.com/" title="网络之路" target="_blank">网络之路</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.ticmy.com/" title="Ticmy" target="_blank">Ticmy</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.itblood.com/" title="IT技术分享" target="_blank">IT技术分享</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java多线程技能"><span class="nav-number">1.</span> <span class="nav-text">Java多线程技能</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#停止线程"><span class="nav-number">1.1.</span> <span class="nav-text">停止线程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#异常法"><span class="nav-number">1.1.1.</span> <span class="nav-text">异常法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#在线程沉睡中停止"><span class="nav-number">1.1.2.</span> <span class="nav-text">在线程沉睡中停止</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#暴力停止stop"><span class="nav-number">1.1.3.</span> <span class="nav-text">暴力停止stop</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#return停止"><span class="nav-number">1.1.4.</span> <span class="nav-text">return停止</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#暂停、恢复线程"><span class="nav-number">1.2.</span> <span class="nav-text">暂停、恢复线程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#yield"><span class="nav-number">1.3.</span> <span class="nav-text">yield</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程的优先级"><span class="nav-number">1.4.</span> <span class="nav-text">线程的优先级</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#优先级的继承性"><span class="nav-number">1.4.1.</span> <span class="nav-text">优先级的继承性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#优先级具有规则性"><span class="nav-number">1.4.2.</span> <span class="nav-text">优先级具有规则性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#优先级具有随机性"><span class="nav-number">1.4.3.</span> <span class="nav-text">优先级具有随机性</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#守护线程"><span class="nav-number">1.5.</span> <span class="nav-text">守护线程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对象及变量的并发访问"><span class="nav-number">2.</span> <span class="nav-text">对象及变量的并发访问</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#synchronized-方法"><span class="nav-number">2.1.</span> <span class="nav-text">synchronized 方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#实例变量的线程安全"><span class="nav-number">2.1.1.</span> <span class="nav-text">实例变量的线程安全</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#多个对象多个锁"><span class="nav-number">2.1.2.</span> <span class="nav-text">多个对象多个锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#脏读"><span class="nav-number">2.1.3.</span> <span class="nav-text">脏读</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#synchronized-锁重入"><span class="nav-number">2.1.4.</span> <span class="nav-text">synchronized 锁重入</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#synchronized-锁释放"><span class="nav-number">2.1.5.</span> <span class="nav-text">synchronized 锁释放</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#同步不具有继承性"><span class="nav-number">2.1.6.</span> <span class="nav-text">同步不具有继承性</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#synchronized同步语句块"><span class="nav-number">2.2.</span> <span class="nav-text">synchronized同步语句块</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#锁非this对象"><span class="nav-number">2.2.1.</span> <span class="nav-text">锁非this对象</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#数据类型String的常量池特性"><span class="nav-number">2.2.2.</span> <span class="nav-text">数据类型String的常量池特性</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Volatile"><span class="nav-number">2.3.</span> <span class="nav-text">Volatile</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#volatile与synchronized的比较"><span class="nav-number">2.3.1.</span> <span class="nav-text">volatile与synchronized的比较</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程间通信"><span class="nav-number">3.</span> <span class="nav-text">线程间通信</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#共享实例变量实现通信"><span class="nav-number">3.1.</span> <span class="nav-text">共享实例变量实现通信</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通知-等待机制"><span class="nav-number">3.2.</span> <span class="nav-text">通知/等待机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#wait-long"><span class="nav-number">3.2.1.</span> <span class="nav-text">wait(long)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#join"><span class="nav-number">3.3.</span> <span class="nav-text">join()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ThreadLocal"><span class="nav-number">3.4.</span> <span class="nav-text">ThreadLocal</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Lock的使用"><span class="nav-number">4.</span> <span class="nav-text">Lock的使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#使用ReentrantLock类"><span class="nav-number">4.1.</span> <span class="nav-text">使用ReentrantLock类</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Timer"><span class="nav-number">5.</span> <span class="nav-text">Timer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#单例模式与多线程"><span class="nav-number">6.</span> <span class="nav-text">单例模式与多线程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#立即加载-饿汉模式"><span class="nav-number">6.1.</span> <span class="nav-text">立即加载/饿汉模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#延迟加载-懒汉模式"><span class="nav-number">6.2.</span> <span class="nav-text">延迟加载/懒汉模式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#使用DCL双检查锁机制"><span class="nav-number">6.2.1.</span> <span class="nav-text">使用DCL双检查锁机制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用静态内置类实现锁机制"><span class="nav-number">6.2.2.</span> <span class="nav-text">使用静态内置类实现锁机制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#序列化和反序列化的单例模式实现"><span class="nav-number">6.3.</span> <span class="nav-text">序列化和反序列化的单例模式实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用static代码块实现单例模式"><span class="nav-number">6.4.</span> <span class="nav-text">使用static代码块实现单例模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用enum枚举数据类型实现单例模式"><span class="nav-number">6.5.</span> <span class="nav-text">使用enum枚举数据类型实现单例模式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#拾遗增补"><span class="nav-number">7.</span> <span class="nav-text">拾遗增补</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#线程状态"><span class="nav-number">7.1.</span> <span class="nav-text">线程状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程组"><span class="nav-number">7.2.</span> <span class="nav-text">线程组</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程对象关联线程组：1级关联"><span class="nav-number">7.3.</span> <span class="nav-text">线程对象关联线程组：1级关联</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程-对象关联线程组：多级关联"><span class="nav-number">7.4.</span> <span class="nav-text">线程 对象关联线程组：多级关联</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程具有有序性"><span class="nav-number">7.5.</span> <span class="nav-text">线程具有有序性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SimpleDateFormate非线程安全"><span class="nav-number">7.6.</span> <span class="nav-text">SimpleDateFormate非线程安全</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">YangSong</span>
+  &nbsp;&nbsp;
+  <span id="busuanzi_container_site_pv">
+      Total viewers:<span id="busuanzi_value_site_pv"></span>
+  </span>
+
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"BinaryYS"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

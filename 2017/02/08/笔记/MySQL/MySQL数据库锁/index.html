@@ -1,0 +1,992 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="MySQL,锁," />
+
+
+
+
+
+  <link rel="alternate" href="/" title="点滴" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="锁的基本概念  锁，在现实生活中是为我们想要隐藏于外界所使用的一种工具。在计算机中，是协调多个进程或线程并发访问某一资源的一种机制。">
+<meta name="keywords" content="MySQL,锁">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL数据库锁">
+<meta property="og:url" content="http://BinaryYS.github.io/2017/02/08/笔记/MySQL/MySQL数据库锁/index.html">
+<meta property="og:site_name" content="点滴">
+<meta property="og:description" content="锁的基本概念  锁，在现实生活中是为我们想要隐藏于外界所使用的一种工具。在计算机中，是协调多个进程或线程并发访问某一资源的一种机制。">
+<meta property="og:updated_time" content="2017-06-16T07:27:29.043Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL数据库锁">
+<meta name="twitter:description" content="锁的基本概念  锁，在现实生活中是为我们想要隐藏于外界所使用的一种工具。在计算机中，是协调多个进程或线程并发访问某一资源的一种机制。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://BinaryYS.github.io/2017/02/08/笔记/MySQL/MySQL数据库锁/"/>
+
+
+
+
+
+  <title> MySQL数据库锁 | 点滴 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">点滴</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle"></p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://BinaryYS.github.io/2017/02/08/笔记/MySQL/MySQL数据库锁/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="YangSong">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/img/avatar.gif">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="点滴">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="点滴" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                MySQL数据库锁
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-02-08T16:42:26+08:00">
+                2017-02-08 16:42:26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/笔记/" itemprop="url" rel="index">
+                    <span itemprop="name">笔记</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/02/08/笔记/MySQL/MySQL数据库锁/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/08/笔记/MySQL/MySQL数据库锁/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="锁的基本概念"><a href="#锁的基本概念" class="headerlink" title="锁的基本概念"></a>锁的基本概念</h2><p>  锁，在现实生活中是为我们想要隐藏于外界所使用的一种工具。在计算机中，是协调多个进程或线程并发访问某一资源的一种机制。<a id="more"></a>在数据库当中，除了传统的计算资源（CPU、RAM、I/O等等）的争用之外，数据也是一种供许多用户共享访问的资源。如何保证数据并发访问的一致性、有效性，是所有数据库必须解决的一个问题，锁的冲突也是影响数据库并发访问性能的一个重要因素。从这一角度来说，锁对于数据库而言就显得尤为重要。<br>  相对于其他的数据库而言，MySQL的锁机制比较简单，最显著的特点就是不同的存储引擎支持不同的锁机制。根据不同的存储引擎，MySQL中锁的特性可以大致归纳如下：</p>
+<table>
+<thead>
+<tr>
+<th>存储引擎</th>
+<th>行锁</th>
+<th>表锁</th>
+<th>页锁</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>  MyISAM</td>
+<td>不支持</td>
+<td>支持</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td>  BDB</td>
+<td>不支持</td>
+<td>支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>  InnoDB</td>
+<td>支持</td>
+<td>支持</td>
+<td>不支持</td>
+</tr>
+</tbody>
+</table>
+<h3 id="MySQL3种锁的特性："><a href="#MySQL3种锁的特性：" class="headerlink" title="MySQL3种锁的特性："></a>MySQL3种锁的特性：</h3><p>   <em>表级锁</em>：开销小，加锁快；不会出现死锁；锁定粒度大，发生锁冲突的概率最高,并发度最低。<br>   <em>行级锁</em>：开销大，加锁慢；会出现死锁；锁定粒度最小，发生锁冲突的概率最低,并发度也最高。<br>   <em>页面锁</em>：开销和加锁时间界于表锁和行锁之间；会出现死锁；锁定粒度界于表锁和行锁之间，并发度一般。</p>
+<p>   很难笼统的说哪种锁最好，只能根据具体应用的特点来说哪种锁更加合适。仅仅从锁的角度来说的话：表锁更适用于以查询为主，只有少量按索引条件更新数据的应用；行锁更适用于有大量按索引条件并发更新少量不同数据，同时又有并发查询的应用。</p>
+<h3 id="行锁（Row-Lock）"><a href="#行锁（Row-Lock）" class="headerlink" title="行锁（Row Lock）"></a>行锁（Row Lock）</h3><p>  对一行记录加锁，只影响一条记录。常用在DML语句中，如INSERT, UPDATE, DELETE等。InnoDB行锁是通过给索引上的索引项加锁来实现的，这一点MySQL与Oracle不同，后者是通过在数据块中对相应数据行加锁来实现的。InnoDB这种行锁实现特点意味着：只有通过索引条件检索数据，InnoDB才使用行级锁，否则，InnoDB将使用表锁！<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> test_index(<span class="keyword">id</span> <span class="built_in">int</span> , <span class="keyword">name</span> <span class="built_in">VARCHAR</span>(<span class="number">50</span>),age <span class="built_in">int</span> )<span class="keyword">engine</span>=<span class="keyword">innodb</span> ;</div><div class="line"> </div><div class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> test_index <span class="keyword">values</span>(<span class="number">1</span>,<span class="string">'张一'</span>,<span class="number">15</span>);</div><div class="line"> </div><div class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> test_index <span class="keyword">values</span>(<span class="number">3</span>,<span class="string">'张三'</span>,<span class="number">16</span>);</div><div class="line"> </div><div class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> test_index <span class="keyword">values</span>(<span class="number">4</span>,<span class="string">'张四'</span>,<span class="number">17</span>);</div><div class="line"> </div><div class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> test_index <span class="keyword">values</span>(<span class="number">5</span>,<span class="string">'张五'</span>,<span class="number">19</span>);</div><div class="line"> </div><div class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> test_index <span class="keyword">values</span>(<span class="number">7</span>,<span class="string">'刘琦'</span>,<span class="number">19</span>);</div></pre></td></tr></table></figure></p>
+<h4 id="直接解释查询："><a href="#直接解释查询：" class="headerlink" title="直接解释查询："></a>直接解释查询：</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> test_index <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span>;</div></pre></td></tr></table></figure>
+<p>  查询结果：type: all ，rows: 5 很明显是会使用全表锁<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">    +----+-------------+------------+------+---------------+------+---------+------+------+-------------+</div><div class="line">     </div><div class="line">    | id | select_type | table      | <span class="built_in">type</span> | possible_keys | key  | key_len | ref  | rows | Extra       |</div><div class="line">     </div><div class="line">    +----+-------------+------------+------+---------------+------+---------+------+------+-------------+</div><div class="line">     </div><div class="line">    |  1 | SIMPLE      | test_index | ALL  | NULL          | NULL | NULL    | NULL |    5 | Using <span class="built_in">where</span> |</div><div class="line">     </div><div class="line">    +----+-------------+------------+------+---------------+------+---------+------+------+-------------+</div><div class="line"></div><div class="line">```  </div><div class="line"></div><div class="line"><span class="comment">####  增加索引，id加唯一索引，age加普通索引</span></div><div class="line">``` sql</div><div class="line">ALTER TABLE test_index</div><div class="line"> </div><div class="line">ADD UNIQUE uk_id(id),</div><div class="line">ADD index idx_age(age);</div><div class="line"> </div><div class="line">mysql&gt; explain select * from test_index <span class="built_in">where</span> id = 1;</div></pre></td></tr></table></figure></p>
+<p>   查询结果：锁定一条记录<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"> </div><div class="line">+<span class="comment">----+-------------+------------+-------+---------------+-------+---------+-------+------+-------+</span></div><div class="line"> </div><div class="line">| id | select_type | table      | type  | possible_keys | key   | key_len | ref   | rows | Extra |</div><div class="line"> </div><div class="line">+<span class="comment">----+-------------+------------+-------+---------------+-------+---------+-------+------+-------+</span></div><div class="line"> </div><div class="line">|  1 | SIMPLE      | test_index | const | uk_id         | uk_id | 5       | const |    1 | NULL  |</div><div class="line"> </div><div class="line">+<span class="comment">----+-------------+------------+-------+---------------+-------+---------+-------+------+-------+</span></div><div class="line"> </div><div class="line">type: const ，key:uk_id,rows:</div></pre></td></tr></table></figure></p>
+<h4 id="两个事务，TX1加共享行锁-查询age-17的记录，-TX2往数据库里插入一条age-18的记录"><a href="#两个事务，TX1加共享行锁-查询age-17的记录，-TX2往数据库里插入一条age-18的记录" class="headerlink" title="两个事务，TX1加共享行锁, 查询age=17的记录， TX2往数据库里插入一条age=18的记录"></a>两个事务，TX1加共享行锁, 查询age=17的记录， TX2往数据库里插入一条age=18的记录</h4><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">set autocommit=0;//MySQL默认操作模式就是autocommit自动提交模式。这就表示除非显式地开始一个事务，</div><div class="line">否则每个查询都被当做一个单独的事务自动执行。我们可以通过设置autocommit的值改变是否是自动提交autocommit模式。</div><div class="line">值0和OFF都是一样的，当然，1也就表示ON。通过以上设置autocommit=0，则用户将一直处于某个事务中，直到执行一条</div><div class="line">commit提交或rollback语句才会结束当前事务重新开始一个新的事务。</div><div class="line"></div><div class="line">select * from test_index where age=17 lock in share mode;</div><div class="line">+------+------+------+</div><div class="line"> </div><div class="line">| id   | name | age  |</div><div class="line"> </div><div class="line">+------+------+------+</div><div class="line"> </div><div class="line">|    4 | 张四 |   17 |</div><div class="line"> </div><div class="line">+------+------+------+</div><div class="line"> </div><div class="line">1 row in set (0.00 sec)</div><div class="line"> </div><div class="line"> </div><div class="line"> </div><div class="line">TX2:</div><div class="line">mysql&gt; set autocommit=0;</div><div class="line"> </div><div class="line">mysql&gt; insert test_index values(8,'test',18);</div><div class="line"> </div><div class="line">ERROR 1205 (HY000): Lock wait timeout exceeded; try restarting transaction</div></pre></td></tr></table></figure>
+<p> 显然被锁住的不止age=17的那一行<br> 执行sql查看加锁的具体信息<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span> information_schema.innodb_locks</div></pre></td></tr></table></figure></p>
+<h3 id="表锁"><a href="#表锁" class="headerlink" title="表锁"></a>表锁</h3><p> MySQL表级锁有两种模式：表共享读锁（Table Read Lock）和表独占写锁（Table Write Lock）。什么意思呢，就是说对MyISAM表进行读操作时，它不会阻塞其他用户对同一表的读请求，但会阻塞 对同一表的写操作；而对MyISAM表的写操作，则会阻塞其他用户对同一表的读和写操作。<br> InnoDB锁与MyISAM锁的最大不同在于：一是支持事务（TRANCSACTION），二是采用了行级锁。我们知道事务是由一组SQL语句组成的逻辑处理单元，其有四个属性（简称ACID属性），分别为：<br> <em>原子性（Atomicity）</em>：事务是一个原子操作单元，其对数据的修改，要么全部执行，要么全都不执行；<br> <em>一致性（Consistent）</em>：在事务开始和完成时，数据都必须保持一致状态；<br> <em>隔离性（Isolation）</em>：数据库系统提供一定的隔离机制，保证事务在不受外部并发操作影响的“独立”环境执行；<br> <em>持久性（Durable）</em>：事务完成之后，它对于数据的修改是永久性的，即使出现系统故障也能够保持。<br> InnoDB有两种模式的行锁：<br> <em>共享锁(S)</em>：允许一个事务去读一行，阻止其他事务获得相同数据集的排他锁。<br> <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">( <span class="keyword">Select</span> * <span class="keyword">from</span> table_name <span class="keyword">where</span> ......lock <span class="keyword">in</span> <span class="keyword">share</span> <span class="keyword">mode</span>)</div></pre></td></tr></table></figure></p>
+<p> <em>排他锁(X)</em>：允许获得排他锁的事务更新数据，阻止其他事务取得相同数据集的共享读锁和排他写锁。<br> <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">(<span class="keyword">select</span> * <span class="keyword">from</span> table_name where.....for <span class="keyword">update</span>)</div></pre></td></tr></table></figure></p>
+<p> 为了允许行锁和表锁共存，实现多粒度锁机制；同时还有两种内部使用的意向锁（都是表锁），分别为意向共享锁和意向排他锁。InnoDB行锁是通过给索引项加锁来实现的，即只有通过索引条件检索数据，InnoDB才使用行级锁，否则将使用表锁！<br><em>意向共享锁(IS)</em><br>事务打算给数据行加行共享锁，事务在给一个数据行加共享锁前必须先取得该表的IS锁。<br><em>意向排他锁(IX)</em><br>事务打算给数据行加行排他锁，事务在给一个数据行加排他锁前必须先取得该表的IX锁。</p>
+<h3 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h3><p>正如其名，它指的是对数据被外界（包括本系统当前的其他事务，以及来自外部系统的事务处理）修改持保守态度，因此，在整个数据处理过程中，将数据处于锁定状态。悲观锁的实现，往往依靠数据库提供的锁机制（也只有数据库层提供的锁机制才能真正保证数据访问的排他性，否则，即使在本系统中实现了加锁机制，也无法保证外部系统不会修改数据） </p>
+<h3 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h3><p>相对悲观锁而言，乐观锁机制采取了更加宽松的加锁机制。悲观锁大多数情况下依靠数据库的锁机制实现，以保证操作最大程度的独占性。但随之而来的就是数据库性能的大量开销，特别是对长事务而言，这样的开销往往无法承受。<br>而乐观锁机制在一定程度上解决了这个问题。乐观锁，大多是基于数据版本（ Version ）记录机制实现。何谓数据版本？即为数据增加一个版本标识，在基于数据库表的版本解决方案中，一般是通过为数据库表增加一个 “version” 字段来实现。读取出数据时，将此版本号一同读出，之后更新时，对此版本号加一。此时，将提交数据的版本数据与数据库表对应记录的当前版本信息进行比对，如果提交的数据版本号大于数据库表当前版本号，则予以更新，否则认为是过期数据。<br> 本质上，数据库的乐观锁做法和悲观锁做法主要就是解决下面假设的场景，避免丢失更新问题：</p>
+<h2 id="并发事务处理带来的问题"><a href="#并发事务处理带来的问题" class="headerlink" title="并发事务处理带来的问题"></a>并发事务处理带来的问题</h2><p>相对于串行处理来说，并发事务处理能大大增加数据库资源的利用率，提高数据库系统的事务吞吐量，从而可以支持更多的用户。但并发事务处理也会带来一些问题，主要包括以下几种情况。<br><em>更新丢失（Lost Update）</em>：当两个或多个事务选择同一行，然后基于最初选定的值更新该行时，由于每个事务都不知道其他事务的存在，就会发生丢失更新问题－－最后的更新覆盖了由其他事务所做的更新。例如，两个编辑人员制作了同一文档的电子副本。每个编辑人员独立地更改其副本，然后保存更改后的副本，这样就覆盖了原始文档。最后保存其更改副本的编辑人员覆盖另一个编辑人员所做的更改。如果在一个编辑人员完成并提交事务之前，另一个编辑人员不能访问同一文件，则可避免此问题。<br><em>脏读（Dirty Reads）</em>：一个事务正在对一条记录做修改，在这个事务完成并提交前，这条记录的数据就处于不一致状态；这时，另一个事务也来读取同一条记录，如果不加控制，第二个事务读取了这些“脏”数据，并据此做进一步的处理，就会产生未提交的数据依赖关系。这种现象被形象地叫做”脏读”。<br><em>不可重复读（Non-Repeatable Reads）</em>：一个事务在读取某些数据后的某个时间，再次读取以前读过的数据，却发现其读出的数据已经发生了改变、或某些记录已经被删除了！这种现象就叫做“不可重复读”。<br><em>幻读（Phantom Reads）</em>：一个事务按相同的查询条件重新读取以前检索过的数据，却发现其他事务插入了满足其查询条件的新数据，这种现象就称为“幻读”。</p>
+<p><a href="http://blog.csdn.net/lishenglong666/article/details/53913126" target="_blank" rel="external"><strong><em>MySQL锁机制详细参考链接</em></strong></a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>打赏一下</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/img/wypay.jpg" alt="YangSong WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/img/alipay.jpg" alt="YangSong Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+          
+            <a href="/tags/锁/" rel="tag"># 锁</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/08/笔记/MySQL/MySQL存储引擎/" rel="next" title="MySQL存储引擎">
+                <i class="fa fa-chevron-left"></i> MySQL存储引擎
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/13/笔记/redis实战/redis实战/" rel="prev" title="redis实战">
+                redis实战 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2017/02/08/笔记/MySQL/MySQL数据库锁/"
+     data-title="MySQL数据库锁"
+     data-content=""
+     data-url="http://BinaryYS.github.io/2017/02/08/笔记/MySQL/MySQL数据库锁/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  <p>热评文章</p>
+  <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/02/08/笔记/MySQL/MySQL数据库锁/"
+           data-title="MySQL数据库锁" data-url="http://BinaryYS.github.io/2017/02/08/笔记/MySQL/MySQL数据库锁/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/img/avatar.gif"
+               alt="YangSong" />
+          <p class="site-author-name" itemprop="name">YangSong</p>
+          <p class="site-description motion-element" itemprop="description">一点一滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://HoltYin.github.io/" title="引号" target="_blank">引号</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://jadyer.github.io/" title="半步多" target="_blank">半步多</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://cmin.me/" title="追星少年" target="_blank">追星少年</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://shitianquan.github.io/" title="Terry" target="_blank">Terry</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.itmian4.com/" title="面试" target="_blank">面试</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://coolshell.cn/" title="酷壳" target="_blank">酷壳</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.shuyangyang.com.cn/" title="思考者日记" target="_blank">思考者日记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://chenpengpeng.blog.51cto.com/" title="网络之路" target="_blank">网络之路</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.ticmy.com/" title="Ticmy" target="_blank">Ticmy</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.itblood.com/" title="IT技术分享" target="_blank">IT技术分享</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#锁的基本概念"><span class="nav-number">1.</span> <span class="nav-text">锁的基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MySQL3种锁的特性："><span class="nav-number">1.1.</span> <span class="nav-text">MySQL3种锁的特性：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#行锁（Row-Lock）"><span class="nav-number">1.2.</span> <span class="nav-text">行锁（Row Lock）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#直接解释查询："><span class="nav-number">1.2.1.</span> <span class="nav-text">直接解释查询：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#两个事务，TX1加共享行锁-查询age-17的记录，-TX2往数据库里插入一条age-18的记录"><span class="nav-number">1.2.2.</span> <span class="nav-text">两个事务，TX1加共享行锁, 查询age=17的记录， TX2往数据库里插入一条age=18的记录</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#表锁"><span class="nav-number">1.3.</span> <span class="nav-text">表锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#悲观锁"><span class="nav-number">1.4.</span> <span class="nav-text">悲观锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#乐观锁"><span class="nav-number">1.5.</span> <span class="nav-text">乐观锁</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#并发事务处理带来的问题"><span class="nav-number">2.</span> <span class="nav-text">并发事务处理带来的问题</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">YangSong</span>
+  &nbsp;&nbsp;
+  <span id="busuanzi_container_site_pv">
+      Total viewers:<span id="busuanzi_value_site_pv"></span>
+  </span>
+
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"BinaryYS"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
