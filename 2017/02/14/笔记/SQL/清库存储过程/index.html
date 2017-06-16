@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="MySQL,分片," />
+  <meta name="keywords" content="SQL,存储过程，MyBatis," />
 
 
 
@@ -86,17 +86,17 @@
 
 
 
-<meta name="description" content="sharding MySQL5以后提供了Sharding的能力，其目的就是为突破单节点数据服务器I/O能力限制，解决数据库Scale Out水平扩展的问题。">
-<meta name="keywords" content="MySQL,分片">
+<meta name="description" content="MyBatis调用存储过程清库清库存储过程（清库注意使用EXISTS）1.接收入参的存储过程（一）123456789101112131415161718192021222324252627282930CREATE OR REPLACE PROCEDURE CLEAR_PLATFORM_DATA(P_platformId IN NUMBER)  IS  v_platformStatus VARCHA">
+<meta name="keywords" content="SQL,存储过程，MyBatis">
 <meta property="og:type" content="article">
-<meta property="og:title" content="MySQL分片">
-<meta property="og:url" content="http://BinaryYS.github.io/2017/02/14/笔记/MySQL/MySQL分片扩展/index.html">
+<meta property="og:title" content="存储过程清库">
+<meta property="og:url" content="http://BinaryYS.github.io/2017/02/14/笔记/SQL/清库存储过程/index.html">
 <meta property="og:site_name" content="点滴">
-<meta property="og:description" content="sharding MySQL5以后提供了Sharding的能力，其目的就是为突破单节点数据服务器I/O能力限制，解决数据库Scale Out水平扩展的问题。">
-<meta property="og:updated_time" content="2017-06-16T07:27:29.042Z">
+<meta property="og:description" content="MyBatis调用存储过程清库清库存储过程（清库注意使用EXISTS）1.接收入参的存储过程（一）123456789101112131415161718192021222324252627282930CREATE OR REPLACE PROCEDURE CLEAR_PLATFORM_DATA(P_platformId IN NUMBER)  IS  v_platformStatus VARCHA">
+<meta property="og:updated_time" content="2017-06-16T08:24:40.960Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="MySQL分片">
-<meta name="twitter:description" content="sharding MySQL5以后提供了Sharding的能力，其目的就是为突破单节点数据服务器I/O能力限制，解决数据库Scale Out水平扩展的问题。">
+<meta name="twitter:title" content="存储过程清库">
+<meta name="twitter:description" content="MyBatis调用存储过程清库清库存储过程（清库注意使用EXISTS）1.接收入参的存储过程（一）123456789101112131415161718192021222324252627282930CREATE OR REPLACE PROCEDURE CLEAR_PLATFORM_DATA(P_platformId IN NUMBER)  IS  v_platformStatus VARCHA">
 
 
 
@@ -124,13 +124,13 @@
 
 
 
-  <link rel="canonical" href="http://BinaryYS.github.io/2017/02/14/笔记/MySQL/MySQL分片扩展/"/>
+  <link rel="canonical" href="http://BinaryYS.github.io/2017/02/14/笔记/SQL/清库存储过程/"/>
 
 
 
 
 
-  <title> MySQL分片 | 点滴 </title>
+  <title> 存储过程清库 | 点滴 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -276,7 +276,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://BinaryYS.github.io/2017/02/14/笔记/MySQL/MySQL分片扩展/">
+  <link itemprop="mainEntityOfPage" href="http://BinaryYS.github.io/2017/02/14/笔记/SQL/清库存储过程/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="YangSong">
@@ -300,7 +300,7 @@
             
             
               
-                MySQL分片
+                存储过程清库
               
             
           </h1>
@@ -356,8 +356,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2017/02/14/笔记/MySQL/MySQL分片扩展/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/14/笔记/MySQL/MySQL分片扩展/" itemprop="commentCount"></span>
+                <a href="/2017/02/14/笔记/SQL/清库存储过程/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/14/笔记/SQL/清库存储过程/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -384,11 +384,9 @@
       
 
       
-        <h2 id="sharding"><a href="#sharding" class="headerlink" title="sharding"></a>sharding</h2><p> MySQL5以后提供了Sharding的能力，其目的就是为突破单节点数据服务器I/O能力限制，解决数据库Scale Out水平扩展的问题。<a id="more"></a>通过Sharding可以将数据按照物理位置贴合用户分布，得到更加快速的响应；操作庞然大物总是让人头疼，Sharding将数据分块，更小的数据集操作汇总能够得到更加的体验；分片使得数据分摊在各个数据节点，对其操作实现负载均衡！ </p>
-<h3 id="垂直分区"><a href="#垂直分区" class="headerlink" title="垂直分区"></a>垂直分区</h3><p> 以表为单位，把不同的表分散到不同的数据库或主机上。特点是规则简单，实施方便，适合业务之间耦合度低的系统。</p>
-<h3 id="水平分区"><a href="#水平分区" class="headerlink" title="水平分区"></a>水平分区</h3><p> 以行为单位，将同一个表中的数据按照某种条件拆分到不同的数据库或主机上。特点是相对复杂，适合单表巨大的系统。</p>
-<h3 id="静态分片模式"><a href="#静态分片模式" class="headerlink" title="静态分片模式"></a>静态分片模式</h3><p> 静态分片模式，即分区键是静态分配的，一般使用范围或哈希函数，例如深圳团队放到一个分片，北京团队放到另外一个分片；或者编号为0096开头的员工放到一个分片，而0199开头的员工放到另外一个分片。这种模式虽然实现简单，但明显的缺陷便是存在数据不均匀的情况。</p>
-<h3 id="动态分片模式"><a href="#动态分片模式" class="headerlink" title="动态分片模式"></a>动态分片模式</h3><p> 动态分片模式，即分区函数将从字典中查找分区键，然后定位具体哪个分片存储了数据。这种模式比静态模式更加灵活，但是需要一个集中存储来存放字典，每次查找数据都需要执行2次查询，并且集中存储本身还可能存在单点故障。 </p>
+        <h2 id="MyBatis调用存储过程清库"><a href="#MyBatis调用存储过程清库" class="headerlink" title="MyBatis调用存储过程清库"></a>MyBatis调用存储过程清库</h2><h3 id="清库存储过程（清库注意使用EXISTS）"><a href="#清库存储过程（清库注意使用EXISTS）" class="headerlink" title="清库存储过程（清库注意使用EXISTS）"></a>清库存储过程（清库注意使用EXISTS）</h3><p>1.接收入参的存储过程（一）<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">OR</span> <span class="keyword">REPLACE</span> </div><div class="line"><span class="keyword">PROCEDURE</span> CLEAR_PLATFORM_DATA(P_platformId <span class="keyword">IN</span> <span class="built_in">NUMBER</span>)</div><div class="line">  <span class="keyword">IS</span></div><div class="line">  v_platformStatus VARCHAR2(<span class="number">100</span>);</div><div class="line">  <span class="keyword">BEGIN</span></div><div class="line">    <span class="keyword">SELECT</span> ONLINE_STATUS <span class="keyword">INTO</span> v_platformStatus <span class="keyword">FROM</span> T_PLATFORM_BUSI <span class="keyword">WHERE</span> PLATFORM_ID = P_platformId;</div><div class="line">    IF v_platformStatus='ONLINE' THEN</div><div class="line">      RETURN;</div><div class="line">        ELSIF v_platformStatus='OUTLINE' THEN</div><div class="line"></div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_USER_PERSONAL t <span class="keyword">WHERE</span> <span class="keyword">EXISTS</span> (<span class="keyword">SELECT</span> <span class="number">1</span> <span class="keyword">FROM</span> T_USER <span class="keyword">WHERE</span> T_USER.ID = t.ID <span class="keyword">AND</span> T_USER.PLATFORM_ID = P_platformId);</div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_USER_ORGANIZATION t <span class="keyword">WHERE</span> <span class="keyword">EXISTS</span> (<span class="keyword">SELECT</span> <span class="number">1</span> <span class="keyword">FROM</span> T_USER <span class="keyword">WHERE</span> T_USER.ID = t.ID <span class="keyword">AND</span> T_USER.PLATFORM_ID = P_platformId);</div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_USER <span class="keyword">WHERE</span> PLATFORM_ID = P_platformId;</div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_REGISTER_ORDER <span class="keyword">WHERE</span> PLATFORM_ID = P_platformId;</div><div class="line"></div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_TRANSACTION_RECORD <span class="keyword">WHERE</span> SOURCE_PLATFORM_ID = P_platformId;</div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_TRANSACTION_ORDER <span class="keyword">WHERE</span> PLATFORM_ID = P_platformId;</div><div class="line"></div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_PROJECT_DEBENTURE_REC <span class="keyword">WHERE</span> PLATFORM_ID = P_platformId;</div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_PROJECT_DAILY_REPORT <span class="keyword">WHERE</span> PLATFORM_ID = P_platformId;</div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_PROJECT_EXTEND t <span class="keyword">WHERE</span> <span class="keyword">EXISTS</span> (<span class="keyword">SELECT</span> <span class="number">1</span> <span class="keyword">FROM</span> T_PROJECT <span class="keyword">WHERE</span> T_PROJECT.ID = t.ID <span class="keyword">AND</span> T_PROJECT.BORROWER_PLATFORM_ID = P_platformId);</div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_PROJECT <span class="keyword">WHERE</span> BORROWER_PLATFORM_ID = P_platformId;</div><div class="line">            <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_FREEZE_ORDER <span class="keyword">WHERE</span> PLATFORM_ID = P_platformId;</div><div class="line">      <span class="keyword">DELETE</span> <span class="keyword">FROM</span> T_USER_AUTHORIZATION <span class="keyword">WHERE</span> PLATFORM_ID = P_platformId;</div><div class="line"></div><div class="line">      <span class="keyword">COMMIT</span>;</div><div class="line">        ELSE</div><div class="line">            NULL;</div><div class="line">        <span class="keyword">END</span> <span class="keyword">IF</span>;</div><div class="line">  <span class="keyword">END</span>;</div></pre></td></tr></table></figure></p>
+<p>2.接收入参的存储过程（二）<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">CREATE OR REPLACE </div><div class="line">PROCEDURE CLEAR_ACCOUNT_PLATFORM_DATA(P_platformId IN VARCHAR) AS</div><div class="line">BEGIN</div><div class="line">    DELETE FROM T_ACCOUNT_FREEZE t WHERE EXISTS </div><div class="line">     (SELECT 1 FROM T_ACCOUNT t1 WHERE t1.ID = t.ACCOUNT_ID  AND t1.MERCHANT_NO = P_platformId);</div><div class="line"></div><div class="line">    DELETE FROM T_ACCOUNT_HISTORY t WHERE EXISTS </div><div class="line">      (SELECT 1 FROM T_ACCOUNT t1 WHERE t1.ID = t.ACCOUNT_ID  AND t1.MERCHANT_NO = P_platformId);</div><div class="line"></div><div class="line">    DELETE FROM T_ACCOUNT_SNAPSHOT t WHERE EXISTS </div><div class="line">      (SELECT 1 FROM T_ACCOUNT t1 WHERE t1.ID = t.ACCOUNT_ID  AND t1.MERCHANT_NO = P_platformId);</div><div class="line"></div><div class="line">  DELETE FROM T_ACCOUNT WHERE MERCHANT_NO = P_platformId;</div><div class="line">COMMIT;</div><div class="line">END;</div><div class="line"></div><div class="line">``` </div><div class="line"></div><div class="line">### MyBatis调用存储过程</div><div class="line">1.mapper.xml</div><div class="line">``` bash</div><div class="line">&lt;select id="callClearPlatformData"&gt;</div><div class="line">    &lt;![CDATA[</div><div class="line">      call CLEAR_PLATFORM_DATA(#&#123;platformId,jdbcType=NUMERIC&#125;)</div><div class="line">    ]]&gt;</div><div class="line">  &lt;/select&gt;</div><div class="line">``` </div><div class="line">2.mapper</div><div class="line">``` bash</div><div class="line">void callClearPlatformData(@Param("platformId") long platformId);</div></pre></td></tr></table></figure></p>
+<p>这样就可以直接使用了！！！</p>
 
       
     </div>
@@ -433,9 +431,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+            <a href="/tags/SQL/" rel="tag"># SQL</a>
           
-            <a href="/tags/分片/" rel="tag"># 分片</a>
+            <a href="/tags/存储过程，MyBatis/" rel="tag"># 存储过程，MyBatis</a>
           
         </div>
       
@@ -444,8 +442,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/02/14/笔记/SQL/清库存储过程/" rel="next" title="存储过程清库">
-                <i class="fa fa-chevron-left"></i> 存储过程清库
+              <a href="/2017/02/13/笔记/redis实战/redis实战/" rel="next" title="redis实战">
+                <i class="fa fa-chevron-left"></i> redis实战
               </a>
             
           </div>
@@ -454,8 +452,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/02/23/笔记/数据库/数据库查询/" rel="prev" title="数据库查询优化">
-                数据库查询优化 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/02/14/笔记/MySQL/MySQL分片扩展/" rel="prev" title="MySQL分片">
+                MySQL分片 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -471,10 +469,10 @@
 
     <div class="post-spread">
       
-        <div class="ds-share flat" data-thread-key="2017/02/14/笔记/MySQL/MySQL分片扩展/"
-     data-title="MySQL分片"
+        <div class="ds-share flat" data-thread-key="2017/02/14/笔记/SQL/清库存储过程/"
+     data-title="存储过程清库"
      data-content=""
-     data-url="http://BinaryYS.github.io/2017/02/14/笔记/MySQL/MySQL分片扩展/">
+     data-url="http://BinaryYS.github.io/2017/02/14/笔记/SQL/清库存储过程/">
   <div class="ds-share-inline">
     <ul  class="ds-share-icons-16">
 
@@ -504,8 +502,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2017/02/14/笔记/MySQL/MySQL分片扩展/"
-           data-title="MySQL分片" data-url="http://BinaryYS.github.io/2017/02/14/笔记/MySQL/MySQL分片扩展/">
+      <div class="ds-thread" data-thread-key="2017/02/14/笔记/SQL/清库存储过程/"
+           data-title="存储过程清库" data-url="http://BinaryYS.github.io/2017/02/14/笔记/SQL/清库存储过程/">
       </div>
     
   </div>
@@ -662,7 +660,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#sharding"><span class="nav-number">1.</span> <span class="nav-text">sharding</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#垂直分区"><span class="nav-number">1.1.</span> <span class="nav-text">垂直分区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#水平分区"><span class="nav-number">1.2.</span> <span class="nav-text">水平分区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#静态分片模式"><span class="nav-number">1.3.</span> <span class="nav-text">静态分片模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态分片模式"><span class="nav-number">1.4.</span> <span class="nav-text">动态分片模式</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#MyBatis调用存储过程清库"><span class="nav-number">1.</span> <span class="nav-text">MyBatis调用存储过程清库</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#清库存储过程（清库注意使用EXISTS）"><span class="nav-number">1.1.</span> <span class="nav-text">清库存储过程（清库注意使用EXISTS）</span></a></li></ol></li></ol></div>
             
 
           </div>
